@@ -2,7 +2,12 @@
 import streamlit as st
 
 # === 1) set_page_config harus dipanggil PERTAMA kali (dan hanya sekali) ===
-st.set_page_config(page_title="PLN Dashboard", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(
+    page_title="PLN Area Malang - Dashboard Pengawas", 
+    page_icon="./assets/logo_pln.png",  # path ke logo PLN sebagai favicon
+    layout="wide", 
+    initial_sidebar_state="expanded"
+)
 
 # Setelah dipanggil sekali, kita "amankan" panggilan selanjutnya supaya tidak melempar error
 # (idealnya hapus/komentari semua st.set_page_config di file-file page)
@@ -85,7 +90,7 @@ with st.sidebar:
     choice = st.selectbox("Pilih Menu", list(pages.keys()))
 
     st.markdown("---")
-    st.subheader("🕒 Waktu Akses")
+    st.subheader("🕐 Waktu Akses")
     t = now_jakarta()
     st.write(f"📅 {t.strftime('%d-%m-%Y')}")
     st.write(f"⏰ {t.strftime('%H:%M:%S')}")
