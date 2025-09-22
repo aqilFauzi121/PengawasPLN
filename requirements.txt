@@ -1,0 +1,11 @@
+streamlit
+pandas
+numpy
+gspread
+google-auth
+st-gsheets-connection
+altair
+folium
+streamlit-folium
+python-dateutil
+requests

@@ -1,0 +1,48 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+*.egg
+.env
+.venv/
+venv/
+ENV/
+build/
+dist/
+.ipynb_checkpoints/
+
+# --- OS/Editor junk ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# --- Streamlit project secrets & caches ---
+.streamlit/secrets.toml
+.streamlit/*.json
+.streamlit/credentials.toml
+.streamlit/**/credentials.json
+.streamlit/**/.credentials/
+.streamlit/**/.cache/
+.streamlit/**/cache/
+
+# --- Google auth / keys (prevent leaking secrets) ---
+*service_account*.json
+*credentials*.json
+*key*.json
+*token*.json
+
+# --- Logs & temp ---
+logs/
+*.log
+*.tmp
+*.temp
+
+# --- Data dumps (kalau ada) ---
+data/
+*.csv
+*.xlsx
+*.parquet
