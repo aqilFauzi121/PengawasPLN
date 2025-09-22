@@ -2,12 +2,34 @@ import streamlit as st
 import pandas as pd
 import gspread
 from datetime import date, datetime
+from google.oauth2.service_account import Credentials
 
 st.title("Update Status Sheet History – Multi ID")
 
-gc = gspread.service_account(filename="secrets.toml")
-sh = gc.open("data gardu")
-ws = sh.worksheet("History")
+# Ambil creds dari secrets → jadikan Credentials
+raw_info = dict(st.secrets["connections"]["gsheets"])
+creds = Credentials.from_service_account_info(raw_info).with_scopes([
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive",
+])
+
+gc = gspread.authorize(creds)
+
+# Baca target sheet dari secrets
+SPREADSHEET_ID = st.secrets["SPREADSHEET_ID"]
+WORKSHEET_GID = int(st.secrets["WORKSHEET_GID"])
+
+sh = gc.open_by_key(SPREADSHEET_ID)
+
+# Cari worksheet berdasarkan GID
+ws = None
+for _ws in sh.worksheets():
+    if _ws.id == WORKSHEET_GID:
+        ws = _ws
+        break
+if ws is None:
+    st.error(f"Worksheet dengan GID {WORKSHEET_GID} tidak ditemukan.")
+    st.stop()
 
 df = pd.DataFrame(ws.get_all_records())
 

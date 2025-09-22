@@ -11,9 +11,11 @@ st.title("Selamat Datang di Dashboard PLN AREA MALANG")
 # ----------------------
 # CONFIG
 # ----------------------
+SPREADSHEET_ID = st.secrets["SPREADSHEET_ID"]
+SPREADSHEET_URL = f"https://docs.google.com/spreadsheets/d/{st.secrets['SPREADSHEET_ID']}"
+
 LOG_WORKSHEET = "History"
 DATA_WORKSHEET = "Sheet1"
-SPREADSHEET_ID = "1ucW_0t_nK47WKn4kFZrbSnkWgEYf-TtCk7ioQJHpD5w"
 
 # Koneksi ke Google Sheets
 conn = st.connection("gsheets", type=GSheetsConnection)
@@ -21,13 +23,10 @@ conn = st.connection("gsheets", type=GSheetsConnection)
 # ----------------------
 # FUNGSI BANTUAN
 # ----------------------
-def safe_read(worksheet_name):
+def safe_read(worksheet_name: str) -> pd.DataFrame:
     try:
-        df = conn.read(worksheet=worksheet_name)
-        if isinstance(df, pd.DataFrame):
-            return df.copy()
-        else:
-            return pd.DataFrame(df)
+        df = conn.read(spreadsheet=SPREADSHEET_URL, worksheet=worksheet_name)
+        return df.copy() if isinstance(df, pd.DataFrame) else pd.DataFrame(df)
     except Exception:
         return pd.DataFrame()
 
@@ -67,7 +66,7 @@ def convert_old_log_to_snapshot(df_old):
 # ----------------------
 # BACA DATA GARDU
 # ----------------------
-df_gardu = safe_read(DATA_WORKSHEET)
+df_gardu = conn.read(spreadsheet=SPREADSHEET_URL, worksheet=DATA_WORKSHEET)
 
 # Layout utama: kiri (grafik + log) dan kanan (KPI)
 left_col, right_col = st.columns([2,1])
@@ -85,7 +84,7 @@ with right_col:
 # ----------------------
 # BACA & FILTER LOG
 # ----------------------
-log_raw = safe_read(LOG_WORKSHEET)
+log_raw  = conn.read(spreadsheet=SPREADSHEET_URL, worksheet=LOG_WORKSHEET)
 log_snapshot = convert_old_log_to_snapshot(log_raw)
 
 # Ambil tanggal hari ini (zona WIB)
