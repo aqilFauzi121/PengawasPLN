@@ -5,24 +5,7 @@ from datetime import date, datetime
 
 st.title("Update Status Sheet History – Multi ID")
 
-SCOPES = [
-    "https://www.googleapis.com/auth/spreadsheets",
-    "https://www.googleapis.com/auth/drive",
-]
-
-def get_gspread_client():
-    # 1) Coba pakai Secrets (Cloud)
-    try:
-        sa_info = st.secrets["connections"]["gsheets"]
-        creds = Credentials.from_service_account_info(dict(sa_info), scopes=SCOPES)
-        return gspread.authorize(creds)
-    except Exception:
-        pass
-    # 2) Fallback lokal: pakai file JSON (Windows/Linux aman)
-    json_path = Path(__file__).resolve().parent / ".streamlit" / "dashboard-pkl-2f8129b1c764.json"
-    return gspread.service_account(filename=str(json_path))
-
-gc = get_gspread_client()
+gc = gspread.service_account(filename=".streamlit\dashboard-pkl-2f8129b1c764.json")
 sh = gc.open("data gardu")
 ws = sh.worksheet("History")
 
