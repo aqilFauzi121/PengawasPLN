@@ -1,5 +1,15 @@
-# streamlit_app.py (REWRITTEN)
+# streamlit_app.py
 import streamlit as st
+from PIL import Image
+
+# --- Page Config ---
+pln_logo = Image.open("assets/logo-pln.png")
+st.set_page_config(
+    page_title="PLN Area Malang - Dashboard Pengawas",
+    page_icon=pln_logo,
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
 # === 1) set_page_config harus dipanggil PERTAMA kali (dan hanya sekali) ===
 st.set_page_config(page_title="PLN Dashboard", layout="wide", initial_sidebar_state="expanded")
