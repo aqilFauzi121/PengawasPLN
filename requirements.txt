@@ -10,3 +10,4 @@ streamlit-folium
 python-dateutil
 requests
 plotly
+pytz
