@@ -5,7 +5,7 @@ from datetime import date, datetime
 
 st.title("Update Status Sheet History – Multi ID")
 
-gc = gspread.service_account(filename=".streamlit\dashboard-pkl-2f8129b1c764.json")
+gc = gspread.service_account(filename=".streamlit\secrets.toml")
 sh = gc.open("data gardu")
 ws = sh.worksheet("History")
 
