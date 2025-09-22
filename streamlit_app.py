@@ -1,13 +1,27 @@
-# streamlit_app.py (REWRITTEN)
+# streamlit_app.py
 import streamlit as st
+from pathlib import Path
+from PIL import Image
 
 # === 1) set_page_config harus dipanggil PERTAMA kali (dan hanya sekali) ===
-st.set_page_config(page_title="PLN Dashboard", layout="wide", initial_sidebar_state="expanded")
+# Path aset/logo
+BASE_DIR = Path(__file__).resolve().parent
+ASSETS_DIR = BASE_DIR / "assets"
+LOGO_PATH = ASSETS_DIR / "logo_pln.png"
 
-# Setelah dipanggil sekali, kita "amankan" panggilan selanjutnya supaya tidak melempar error
-# (idealnya hapus/komentari semua st.set_page_config di file-file page)
-_st_set_page_config_original = st.set_page_config  # simpan (opsional)
-st.set_page_config = lambda *a, **k: None  # jadi no-op kalau dipanggil lagi
+# Set judul tab & favicon/logo
+page_icon = Image.open(LOGO_PATH) if LOGO_PATH.exists() else None
+st.set_page_config(
+    page_title="PLN Area Malang - Dashboard Pengawas",
+    page_icon=page_icon,
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
+
+# --- opsional: cegah set_page_config dipanggil ulang oleh page lain ---
+_st_set_page_config_original = st.set_page_config
+st.set_page_config = lambda *a, **k: None
+
 
 # === 2) imports lain ===
 import runpy
