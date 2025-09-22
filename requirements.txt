@@ -9,3 +9,4 @@ folium
 streamlit-folium
 python-dateutil
 requests
+plotly
