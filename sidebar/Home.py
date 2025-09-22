@@ -5,9 +5,6 @@ from datetime import datetime
 import pytz
 import plotly.express as px
 
-st.set_page_config(layout="wide")
-st.title("Selamat Datang di Dashboard PLN AREA MALANG")
-
 # ----------------------
 # CONFIG
 # ----------------------
