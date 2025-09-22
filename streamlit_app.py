@@ -2,15 +2,27 @@
 
 import streamlit as st
 from PIL import Image
+from pathlib import Path
 
-# --- Page Config (harus paling awal) ---
-pln_logo = Image.open("assets/logo-pln.png")
+ASSETS = Path(__file__).parent / "assets"
+
+# cari icon yang ada (aman untuk beda nama/ekstensi)
+for candidate in ["logo_pln.png", "logo-pln.png", "logo_pln.jpg", "logo-pln.jpg"]:
+    icon_path = ASSETS / candidate
+    if icon_path.exists():
+        break
+else:
+    icon_path = None
+
 st.set_page_config(
     page_title="PLN Area Malang - Dashboard Pengawas",
-    page_icon=pln_logo,
+    page_icon=Image.open(icon_path) if icon_path else "⚡",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
 )
+
+if icon_path and icon_path.exists():
+    st.sidebar.image(str(icon_path), width=120)
 
 # === 2) imports lain ===
 import runpy
