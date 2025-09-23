@@ -37,33 +37,40 @@ penyulang_list = sorted(df["PENYULANG"].dropna().unique())
 penyulang = st.selectbox("Pilih PENYULANG", penyulang_list)
 
 if penyulang:
-    filtered = df[df["PENYULANG"].str.lower() == penyulang.lower()]
-    id_list = filtered["ID"].tolist()
+    filtered_penyulang = df[df["PENYULANG"].astype(str).str.lower() == str(penyulang).lower()]
 
-    # === ✅ Checkbox untuk pilih semua ID ===
-    select_all = st.checkbox("Pilih semua ID")
-    if select_all:
-        target_ids = st.multiselect(
-            "Pilih satu atau banyak ID",
-            id_list,
-            default=id_list      # semua ID otomatis terpilih
-        )
-    else:
-        target_ids = st.multiselect(
-            "Pilih satu atau banyak ID",
-            id_list
-        )
+    section_list = sorted(filtered_penyulang["SECTION"].dropna().unique())
+    section = st.selectbox("Pilih SECTION", section_list)
+    
+    if section:
+        filtered = filtered_penyulang[
+            filtered_penyulang["SECTION"].astype(str).str.lower() == str(section).lower()
+        ]
+        id_list = filtered["ID"].tolist()
+
+        select_all = st.checkbox("Pilih semua ID")
+        if select_all:
+            target_ids = st.multiselect(
+                "Pilih satu atau banyak ID",
+                id_list,
+                default=id_list
+            )
+        else:
+            target_ids = st.multiselect(
+                "Pilih satu atau banyak ID",
+                id_list
+            )
 
     col1, col2 = st.columns(2)
     with col1:
-        new_status = st.selectbox("STATUS (F)", ["Selesai", "Proses"])
-        new_status_gardu = st.selectbox("STATUS_GARDU (G)", ["Nyala", "Mati"])
-        new_jenis = st.text_input("JENIS_PEKERJAAN (H)", "")
-        new_pengawas = st.text_input("PENGAWAS (B)", "")
+        new_status = st.selectbox("STATUS PEKERJAAN", ["Selesai", "Proses"])
+        new_status_gardu = st.selectbox("STATUS GARDU", ["Nyala", "Mati"])
+        new_jenis = st.text_input("JENIS PEKERJAAN", "")
+        new_pengawas = st.text_input("PENGAWAS", "")
     with col2:
-        new_waktu_mulai = st.date_input("WAKTU_MULAI (I)", value=None)
-        new_waktu_selesai = st.date_input("WAKTU_SELESAI (J)", value=None)
-        new_pelaksana = st.text_input("PELAKSANA (K)", "")
+        new_waktu_mulai = st.date_input("WAKTU MULAI", value=None)
+        new_waktu_selesai = st.date_input("WAKTU SELESAI", value=None)
+        new_pelaksana = st.text_input("PELAKSANA", "")
 
     if st.button("Update Data"):
         if not target_ids:
