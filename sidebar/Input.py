@@ -29,7 +29,7 @@ for _ws in sh.worksheets():
         break
 if ws is None:
     st.error(f"Worksheet dengan GID {WORKSHEET_GID} tidak ditemukan.")
-    return
+    st.stop()
 
 df = pd.DataFrame(ws.get_all_records())
 
