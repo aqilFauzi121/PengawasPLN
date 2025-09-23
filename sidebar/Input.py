@@ -1,58 +1,41 @@
 import streamlit as st
 import pandas as pd
 import gspread
-from datetime import date, datetime
 from google.oauth2.service_account import Credentials
+from datetime import datetime
 
 st.title("Update Status Sheet History – Multi ID")
 
-# Ambil creds dari secrets → jadikan Credentials
-raw_info = dict(st.secrets["connections"]["gsheets"])
-creds = Credentials.from_service_account_info(raw_info).with_scopes([
-    "https://www.googleapis.com/auth/spreadsheets",
-    "https://www.googleapis.com/auth/drive",
-])
-
+# ==== kredensial dari st.secrets ====
+sa_info = dict(st.secrets["connections"]["gsheets"])
+scopes = ["https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/drive"]
+creds = Credentials.from_service_account_info(sa_info, scopes=scopes)
 gc = gspread.authorize(creds)
 
-# Baca target sheet dari secrets
-SPREADSHEET_ID = st.secrets["SPREADSHEET_ID"]
-WORKSHEET_GID = int(st.secrets["WORKSHEET_GID"])
+# ==== target spreadsheet & worksheet ====
+SPREADSHEET_ID = st.secrets["connections"]["gsheets"].get(
+    "spreadsheet",
+    "1FvKNPEtkOfB9nlH8sMqdXkZDYYQ4n-7n8yL9-v2_rx0"  # fallback
+)
+WS_NAME = st.secrets["connections"]["gsheets"].get("worksheet", "History")
 
 sh = gc.open_by_key(SPREADSHEET_ID)
+ws = sh.worksheet(WS_NAME)
 
-# Cari worksheet berdasarkan GID
-ws = None
-for _ws in sh.worksheets():
-    if _ws.id == WORKSHEET_GID:
-        ws = _ws
-        break
-if ws is None:
-    st.error(f"Worksheet dengan GID {WORKSHEET_GID} tidak ditemukan.")
-    st.stop()
-
+# ==== load data ====
 df = pd.DataFrame(ws.get_all_records())
 
-penyulang_list = sorted(df["PENYULANG"].dropna().unique())
+penyulang_list = sorted(pd.Series(df.get("PENYULANG", [])).dropna().unique())
 penyulang = st.selectbox("Pilih PENYULANG", penyulang_list)
 
 if penyulang:
-    filtered = df[df["PENYULANG"].str.lower() == penyulang.lower()]
+    filtered = df[df["PENYULANG"].astype(str).str.lower() == str(penyulang).lower()]
     id_list = filtered["ID"].tolist()
 
-    # === ✅ Checkbox untuk pilih semua ID ===
     select_all = st.checkbox("Pilih semua ID")
-    if select_all:
-        target_ids = st.multiselect(
-            "Pilih satu atau banyak ID",
-            id_list,
-            default=id_list      # semua ID otomatis terpilih
-        )
-    else:
-        target_ids = st.multiselect(
-            "Pilih satu atau banyak ID",
-            id_list
-        )
+    target_ids = st.multiselect("Pilih satu atau banyak ID", id_list,
+                                default=id_list if select_all else None)
 
     col1, col2 = st.columns(2)
     with col1:
@@ -77,17 +60,21 @@ if penyulang:
                 new_waktu_selesai.isoformat() if new_waktu_selesai else "",
                 new_pelaksana,
             ]
-
             updated = 0
+            # bangun index ID -> row
+            idx_map = {row["ID"]: i for i, row in df.iterrows()}
+            batch = []
             for tid in target_ids:
-                row_idx = df.index[df["ID"] == tid][0]
-                row_num = row_idx + 2   # header + offset
-
+                row_idx = idx_map.get(tid)
+                if row_idx is None:
+                    continue
+                row_num = row_idx + 2  # header di baris 1
                 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                ws.update(f"A{row_num}", timestamp)        # kolom A: last update
-                ws.update(f"B{row_num}", new_pengawas)     # kolom B: Pengawas
-                ws.update(f"F{row_num}:K{row_num}", [values_F_K])  # kolom F–K
-
+                batch.append({"range": f"A{row_num}", "values": [[timestamp]]})
+                batch.append({"range": f"B{row_num}", "values": [[new_pengawas]]})
+                batch.append({"range": f"F{row_num}:K{row_num}", "values": [values_F_K]})
                 updated += 1
 
+            if batch:
+                ws.batch_update(batch)
             st.success(f"Berhasil memperbarui {updated} baris.")
